@@ -1,0 +1,12 @@
+/Volumes/Data/CasperLabs/civic-contract/target/debug/deps/semver_parser-0a80717c91fb2562.rmeta: /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/lib.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/comparator.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/lexer.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/parser.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/range.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/version.rs
+
+/Volumes/Data/CasperLabs/civic-contract/target/debug/deps/libsemver_parser-0a80717c91fb2562.rlib: /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/lib.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/comparator.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/lexer.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/parser.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/range.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/version.rs
+
+/Volumes/Data/CasperLabs/civic-contract/target/debug/deps/semver_parser-0a80717c91fb2562.d: /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/lib.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/comparator.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/lexer.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/parser.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/range.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/version.rs
+
+/Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/lib.rs:
+/Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/comparator.rs:
+/Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/lexer.rs:
+/Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/parser.rs:
+/Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/range.rs:
+/Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/semver-parser-0.9.0/src/version.rs:

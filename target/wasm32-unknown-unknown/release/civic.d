@@ -1,0 +1,1 @@
+/Volumes/Data/CasperLabs/civic-contract/target/wasm32-unknown-unknown/release/civic.wasm: /Volumes/Data/CasperLabs/civic-contract/cep47/src/lib.rs /Volumes/Data/CasperLabs/civic-contract/cep47/src/logic.rs /Volumes/Data/CasperLabs/civic-contract/cep47/src/logic_tests.rs /Volumes/Data/CasperLabs/civic-contract/civic/src/main.rs

@@ -1,0 +1,12 @@
+/Volumes/Data/CasperLabs/civic-contract/target/wasm32-unknown-unknown/release/deps/sha2-391ed4f5d988d5b5.rmeta: /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/lib.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/consts.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/sha256.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/sha512.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/sha256/soft.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/sha512/soft.rs
+
+/Volumes/Data/CasperLabs/civic-contract/target/wasm32-unknown-unknown/release/deps/libsha2-391ed4f5d988d5b5.rlib: /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/lib.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/consts.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/sha256.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/sha512.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/sha256/soft.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/sha512/soft.rs
+
+/Volumes/Data/CasperLabs/civic-contract/target/wasm32-unknown-unknown/release/deps/sha2-391ed4f5d988d5b5.d: /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/lib.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/consts.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/sha256.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/sha512.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/sha256/soft.rs /Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/sha512/soft.rs
+
+/Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/lib.rs:
+/Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/consts.rs:
+/Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/sha256.rs:
+/Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/sha512.rs:
+/Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/sha256/soft.rs:
+/Users/home/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.5/src/sha512/soft.rs:
