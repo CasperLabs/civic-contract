@@ -1,2 +1,0 @@
-cargo:rustc-env=TYPENUM_BUILD_CONSTS=/Volumes/Data/CasperLabs/civic-contract/target/wasm32-unknown-unknown/release/build/typenum-8affd8e03aa874d6/out/consts.rs
-cargo:rustc-env=TYPENUM_BUILD_OP=/Volumes/Data/CasperLabs/civic-contract/target/wasm32-unknown-unknown/release/build/typenum-8affd8e03aa874d6/out/op.rs
