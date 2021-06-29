@@ -463,6 +463,32 @@ pub fn get_entrypoints(package_hash: Option<ContractPackageHash>) -> EntryPoints
         },
     ));
     entry_points.add_entry_point(endpoint(
+        "burn_many",
+        vec![
+            Parameter::new("owner", CLType::PublicKey),
+            Parameter::new("token_ids", CLType::List(Box::new(CLType::String))),
+        ],
+        CLType::Unit,
+        if secure {
+            Some("deployer_access")
+        } else {
+            None
+        },
+    ));
+    entry_points.add_entry_point(endpoint(
+        "burn_one",
+        vec![
+            Parameter::new("owner", CLType::PublicKey),
+            Parameter::new("token_id", CLType::String),
+        ],
+        CLType::Unit,
+        if secure {
+            Some("deployer_access")
+        } else {
+            None
+        },
+    ));
+    entry_points.add_entry_point(endpoint(
         "transfer_token",
         vec![
             Parameter::new("sender", CLType::PublicKey),
