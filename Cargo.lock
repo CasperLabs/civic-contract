@@ -203,10 +203,19 @@ checksum = "4a72c244c1ff497a746a7e1fb3d14bd08420ecda70c8f25c7112f2781652d787"
 [[package]]
 name = "cep47"
 version = "0.1.0"
+source = "git+https://github.com/casper-ecosystem/casper-nft-cep47?branch=develop#46d11ff300a59951a0425d599b1d298b9c2c7532"
 dependencies = [
  "casper-contract",
  "casper-types",
- "rand 0.7.3",
+ "cep47-logic",
+]
+
+[[package]]
+name = "cep47-logic"
+version = "0.1.0"
+source = "git+https://github.com/casper-ecosystem/casper-nft-cep47?branch=develop#46d11ff300a59951a0425d599b1d298b9c2c7532"
+dependencies = [
+ "casper-types",
 ]
 
 [[package]]

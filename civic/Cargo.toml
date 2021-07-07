@@ -9,16 +9,7 @@ edition = "2018"
 [dependencies]
 contract = { package="casper-contract", version = "1.2.0" }
 types = { package="casper-types", version = "1.2.0" }
-cep47 = { path="../cep47", features = [
-    "no_transfer_token", 
-    "no_transfer_many_tokens", 
-    "no_transfer_all_tokens",
-    "no_mint_one",
-    "no_mint_copies",
-    "no_mint_many",
-    "no_burn_one",
-    "no_burn_many",
-    ]}
+cep47 = { git="https://github.com/casper-ecosystem/casper-nft-cep47", branch="develop" }
 
 [[bin]]
 name = "civic"
@@ -29,3 +20,6 @@ test = false
 
 [features]
 default = ["contract/std", "types/std"]
+
+[net]
+git-fetch-with-cli = true
