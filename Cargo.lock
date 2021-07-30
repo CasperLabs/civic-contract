@@ -93,9 +93,9 @@ checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
 name = "casper-contract"
-version = "1.2.0"
+version = "1.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "51d48bb1c54d7a1cea8ce42a8799d16fce9bf00d4900a8b6e9afe44425ab43a5"
+checksum = "1625570af44e0594de76aa929fcde9a9e1093b41fd97fd5fea411e5e8859d8a8"
 dependencies = [
  "casper-types",
  "hex_fmt",
@@ -106,9 +106,9 @@ dependencies = [
 
 [[package]]
 name = "casper-engine-test-support"
-version = "1.2.0"
+version = "1.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7bd761f86fe8aaf2a28b89483552f84ed208c8b586f21eb6e55ddce33dfc363f"
+checksum = "047da2f4ca94f60ed02d94db5c9ab408a2046c7b3a7a227e5a191983fe4ab3bd"
 dependencies = [
  "casper-contract",
  "casper-execution-engine",
@@ -123,9 +123,9 @@ dependencies = [
 
 [[package]]
 name = "casper-execution-engine"
-version = "1.2.0"
+version = "1.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a329aee62c0014a380a83f8c90b95b436de811ac41bf5867bc7cea14389f08cd"
+checksum = "333345fdc7ffca762bbc8d59e4947e84f3636326ad765ec06c223750810d6ba8"
 dependencies = [
  "anyhow",
  "base16",
@@ -166,9 +166,9 @@ dependencies = [
 
 [[package]]
 name = "casper-types"
-version = "1.2.0"
+version = "1.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa051ceceab7792c5c16c26f99fa8f00bb93e3a5722f699d6a8a3eeae7d09b25"
+checksum = "6895fc78e2922b4eaf2ec2830685a0fa19ec83bd0b96feec359ec1291b7eeec3"
 dependencies = [
  "base16",
  "base64",
@@ -202,18 +202,19 @@ checksum = "4a72c244c1ff497a746a7e1fb3d14bd08420ecda70c8f25c7112f2781652d787"
 
 [[package]]
 name = "cep47"
-version = "0.1.0"
-source = "git+https://github.com/casper-ecosystem/casper-nft-cep47?branch=develop#46d11ff300a59951a0425d599b1d298b9c2c7532"
+version = "0.2.0"
+source = "git+https://github.com/casper-ecosystem/casper-nft-cep47?branch=draft_civic#613899ecfbfee880e9dda0da83902bca1679af3a"
 dependencies = [
  "casper-contract",
  "casper-types",
  "cep47-logic",
+ "hex",
 ]
 
 [[package]]
 name = "cep47-logic"
 version = "0.1.0"
-source = "git+https://github.com/casper-ecosystem/casper-nft-cep47?branch=develop#46d11ff300a59951a0425d599b1d298b9c2c7532"
+source = "git+https://github.com/casper-ecosystem/casper-nft-cep47?branch=draft_civic#613899ecfbfee880e9dda0da83902bca1679af3a"
 dependencies = [
  "casper-types",
 ]
@@ -508,6 +509,9 @@ name = "hex"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "hex-buffer-serde"

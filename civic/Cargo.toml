@@ -7,9 +7,9 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-contract = { package="casper-contract", version = "1.2.0" }
-types = { package="casper-types", version = "1.2.0" }
-cep47 = { git="https://github.com/casper-ecosystem/casper-nft-cep47", branch="develop" }
+contract = { package="casper-contract", version = "1.3.1" }
+types = { package="casper-types", version = "1.3.1" }
+cep47 = { git="https://github.com/casper-ecosystem/casper-nft-cep47", branch="draft_civic", features=["no_mint_one", "no_mint_many", "no_mint_copies", "no_burn_one", "no_burn_many", "no_update_token_metadata"] }
 
 [[bin]]
 name = "civic"
