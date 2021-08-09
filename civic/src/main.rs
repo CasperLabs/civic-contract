@@ -11,30 +11,30 @@ use contract::{
 use types::{ApiError, CLType, Key, Parameter};
 
 #[no_mangle]
-pub extern "C" fn add_gatekeeper() {
-    let gatekeeper = get_named_arg::<Key>("gatekeeper");
-    let gatekeeper_key = gatekeeper_key(&gatekeeper);
-    match get_key(&gatekeeper_key) {
+pub extern "C" fn add_gateway() {
+    let gateway = get_named_arg::<Key>("gateway");
+    let gateway_key = gateway_key(&gateway);
+    match get_key(&gateway_key) {
         None => {
-            let key = new_uref(gatekeeper).into();
-            put_key(&gatekeeper_key, key);
+            let key = new_uref(gateway).into();
+            put_key(&gateway_key, key);
         }
         Some(_) => {
-            panic!("Trying to add an existing gatekeeper");
+            panic!("Trying to add an existing gateway");
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn revoke_gatekeepr() {
-    let gatekeeper = get_named_arg::<Key>("gatekeeper");
-    let gatekeeper_key = gatekeeper_key(&gatekeeper);
-    match get_key(&gatekeeper_key) {
+pub extern "C" fn revoke_gateway() {
+    let gateway = get_named_arg::<Key>("gateway");
+    let gateway_key = gateway_key(&gateway);
+    match get_key(&gateway_key) {
         None => {
-            panic!("Trying to revoke non-existing gatekeeper");
+            panic!("Trying to revoke non-existing gateway");
         }
         Some(_) => {
-            remove_key(&gatekeeper_key);
+            remove_key(&gateway_key);
         }
     }
 }
@@ -42,7 +42,7 @@ pub extern "C" fn revoke_gatekeepr() {
 #[no_mangle]
 pub extern "C" fn mint_one() {
     let sender = get_caller();
-    if !is_gatekeeper(&sender) {
+    if !is_gateway(&sender) {
         revert(ApiError::PermissionDenied);
     }
     let recipient = get_named_arg::<Key>("recipient");
@@ -57,7 +57,7 @@ pub extern "C" fn mint_one() {
 #[no_mangle]
 pub extern "C" fn mint_many() {
     let sender = get_caller();
-    if !is_gatekeeper(&sender) {
+    if !is_gateway(&sender) {
         revert(ApiError::PermissionDenied);
     }
     let recipient = get_named_arg::<Key>("recipient");
@@ -72,7 +72,7 @@ pub extern "C" fn mint_many() {
 #[no_mangle]
 pub extern "C" fn mint_copies() {
     let sender = get_caller();
-    if !is_gatekeeper(&sender) {
+    if !is_gateway(&sender) {
         revert(ApiError::PermissionDenied);
     }
     let recipient = get_named_arg::<Key>("recipient");
@@ -88,7 +88,7 @@ pub extern "C" fn mint_copies() {
 #[no_mangle]
 pub extern "C" fn burn_one() {
     let sender = get_caller();
-    if !is_gatekeeper(&sender) {
+    if !is_gateway(&sender) {
         revert(ApiError::PermissionDenied);
     }
     let owner = get_named_arg::<Key>("owner");
@@ -100,7 +100,7 @@ pub extern "C" fn burn_one() {
 #[no_mangle]
 pub extern "C" fn burn_many() {
     let sender = get_caller();
-    if !is_gatekeeper(&sender) {
+    if !is_gateway(&sender) {
         revert(ApiError::PermissionDenied);
     }
     let owner = get_named_arg::<Key>("owner");
@@ -112,7 +112,7 @@ pub extern "C" fn burn_many() {
 #[no_mangle]
 pub extern "C" fn update_token_metadata() {
     let sender = get_caller();
-    if !is_gatekeeper(&sender) {
+    if !is_gateway(&sender) {
         revert(ApiError::PermissionDenied);
     }
     let token_id = get_named_arg::<TokenId>("token_id");
@@ -129,15 +129,15 @@ pub extern "C" fn call() {
     let mut entry_points = cep47::get_entrypoints(Some(contract_package_hash));
 
     entry_points.add_entry_point(endpoint(
-        "add_gatekeeper",
-        vec![Parameter::new("gatekeeper", CLType::Key)],
+        "add_gateway",
+        vec![Parameter::new("gateway", CLType::Key)],
         CLType::Unit,
         Some("deployer"),
     ));
 
     entry_points.add_entry_point(endpoint(
         "revoke_gatekeepr",
-        vec![Parameter::new("gatekeeper", CLType::Key)],
+        vec![Parameter::new("gateway", CLType::Key)],
         CLType::Unit,
         Some("deployer"),
     ));
@@ -152,13 +152,13 @@ pub extern "C" fn call() {
     );
 }
 
-fn gatekeeper_key(account: &Key) -> String {
-    format!("gatekeeper_{}", account)
+fn gateway_key(account: &Key) -> String {
+    format!("gateway_{}", account)
 }
 
-fn is_gatekeeper(account: &Key) -> bool {
-    let gatekeeper_key = gatekeeper_key(&account);
-    match get_key(&gatekeeper_key) {
+fn is_gateway(account: &Key) -> bool {
+    let gateway_key = gateway_key(&account);
+    match get_key(&gateway_key) {
         None => false,
         Some(_) => true,
     }
