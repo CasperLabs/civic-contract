@@ -1,165 +1,445 @@
 #![no_main]
+#![no_std]
+#[macro_use]
+extern crate alloc;
 
-use cep47::{self, endpoint, get_caller, CEP47Contract, CasperCEP47Contract, Meta, TokenId};
+use alloc::{
+    boxed::Box,
+    collections::BTreeSet,
+    string::{String, ToString},
+    vec::Vec,
+};
+use cep47::{
+    contract_utils::{AdminControl, ContractContext, OnChainContractStorage},
+    Meta, TokenId, CEP47,
+};
+
 use contract::{
-    contract_api::{
-        runtime::{get_key, get_named_arg, put_key, remove_key, revert},
-        storage::new_uref,
-    },
+    contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
-use types::{ApiError, CLType, Key, Parameter};
+use types::{
+    contracts::NamedKeys, runtime_args, ApiError, CLType, CLTyped, CLValue, EntryPoint,
+    EntryPointAccess, EntryPointType, EntryPoints, Group, Key, Parameter, RuntimeArgs, URef, U256,
+};
 
-#[no_mangle]
-pub extern "C" fn add_gateway() {
-    let gateway = get_named_arg::<Key>("gateway");
-    let gateway_key = gateway_key(&gateway);
-    match get_key(&gateway_key) {
-        None => {
-            let key = new_uref(gateway).into();
-            put_key(&gateway_key, key);
-        }
-        Some(_) => {
-            panic!("Trying to add an existing gateway");
-        }
+mod gatekeeper_control;
+use gatekeeper_control::GateKeeperControl;
+
+#[derive(Default)]
+struct GatewayToken(OnChainContractStorage);
+
+impl ContractContext<OnChainContractStorage> for GatewayToken {
+    fn storage(&self) -> &OnChainContractStorage {
+        &self.0
+    }
+}
+
+impl CEP47<OnChainContractStorage> for GatewayToken {}
+impl AdminControl<OnChainContractStorage> for GatewayToken {}
+impl GateKeeperControl<OnChainContractStorage> for GatewayToken {}
+impl GatewayToken {
+    fn constructor(&mut self, name: String, symbol: String, meta: Meta) {
+        CEP47::init(self, name, symbol, meta);
+        AdminControl::init(self);
+        GateKeeperControl::init(self);
     }
 }
 
 #[no_mangle]
-pub extern "C" fn revoke_gateway() {
-    let gateway = get_named_arg::<Key>("gateway");
-    let gateway_key = gateway_key(&gateway);
-    match get_key(&gateway_key) {
-        None => {
-            panic!("Trying to revoke non-existing gateway");
-        }
-        Some(_) => {
-            remove_key(&gateway_key);
-        }
-    }
+fn constructor() {
+    let name = runtime::get_named_arg::<String>("name");
+    let symbol = runtime::get_named_arg::<String>("symbol");
+    let meta = runtime::get_named_arg::<Meta>("meta");
+    GatewayToken::default().constructor(name, symbol, meta);
 }
 
 #[no_mangle]
-pub extern "C" fn mint_one() {
-    let sender = get_caller();
-    if !is_gateway(&sender) {
-        revert(ApiError::PermissionDenied);
-    }
-    let recipient = get_named_arg::<Key>("recipient");
-    let token_id = get_named_arg::<Option<TokenId>>("token_id");
-    let token_meta = get_named_arg::<Meta>("token_meta");
-    let mut contract = CasperCEP47Contract::new();
-    contract
-        .mint_one(&recipient, token_id, token_meta)
+fn name() {
+    let ret = GatewayToken::default().name();
+    runtime::ret(CLValue::from_t(ret).unwrap_or_revert());
+}
+
+#[no_mangle]
+fn symbol() {
+    let ret = GatewayToken::default().symbol();
+    runtime::ret(CLValue::from_t(ret).unwrap_or_revert());
+}
+
+#[no_mangle]
+fn meta() {
+    let ret = GatewayToken::default().meta();
+    runtime::ret(CLValue::from_t(ret).unwrap_or_revert());
+}
+
+#[no_mangle]
+fn total_supply() {
+    let ret = GatewayToken::default().total_supply();
+    runtime::ret(CLValue::from_t(ret).unwrap_or_revert());
+}
+
+#[no_mangle]
+fn balance_of() {
+    let owner = runtime::get_named_arg::<Key>("owner");
+    let ret = GatewayToken::default().balance_of(owner);
+    runtime::ret(CLValue::from_t(ret).unwrap_or_revert());
+}
+
+#[no_mangle]
+fn get_token_by_index() {
+    let owner = runtime::get_named_arg::<Key>("owner");
+    let index = runtime::get_named_arg::<U256>("index");
+    let ret = GatewayToken::default().get_token_by_index(owner, index);
+    runtime::ret(CLValue::from_t(ret).unwrap_or_revert());
+}
+
+#[no_mangle]
+fn owner_of() {
+    let token_id = runtime::get_named_arg::<TokenId>("token_id");
+    let ret = GatewayToken::default().owner_of(token_id);
+    runtime::ret(CLValue::from_t(ret).unwrap_or_revert());
+}
+
+#[no_mangle]
+fn token_meta() {
+    let token_id = runtime::get_named_arg::<TokenId>("token_id");
+    let ret = GatewayToken::default().token_meta(token_id);
+    runtime::ret(CLValue::from_t(ret).unwrap_or_revert());
+}
+
+#[no_mangle]
+fn update_token_meta() {
+    let token_id = runtime::get_named_arg::<TokenId>("token_id");
+    let token_meta = runtime::get_named_arg::<Meta>("token_meta");
+    GatewayToken::default()
+        .set_token_meta(token_id, token_meta)
         .unwrap_or_revert();
 }
 
 #[no_mangle]
-pub extern "C" fn mint_many() {
-    let sender = get_caller();
-    if !is_gateway(&sender) {
-        revert(ApiError::PermissionDenied);
+fn mint() {
+    let recipient = runtime::get_named_arg::<Key>("recipient");
+    let token_id = runtime::get_named_arg::<Option<TokenId>>("token_id");
+    let token_meta = runtime::get_named_arg::<Meta>("token_meta");
+    if !GatewayToken::default().is_gatekeeper() {
+        runtime::revert(ApiError::User(20));
     }
-    let recipient = get_named_arg::<Key>("recipient");
-    let token_ids = get_named_arg::<Option<Vec<TokenId>>>("token_ids");
-    let token_metas = get_named_arg::<Vec<Meta>>("token_metas");
-    let mut contract = CasperCEP47Contract::new();
-    contract
-        .mint_many(&recipient, token_ids, token_metas)
+    GatewayToken::default()
+        .mint(recipient, token_id.map(|x| vec![x]), vec![token_meta])
         .unwrap_or_revert();
 }
 
 #[no_mangle]
-pub extern "C" fn mint_copies() {
-    let sender = get_caller();
-    if !is_gateway(&sender) {
-        revert(ApiError::PermissionDenied);
+fn burn() {
+    let owner = runtime::get_named_arg::<Key>("owner");
+    let token_id = runtime::get_named_arg::<TokenId>("token_id");
+    if !GatewayToken::default().is_gatekeeper() {
+        runtime::revert(ApiError::User(20));
     }
-    let recipient = get_named_arg::<Key>("recipient");
-    let token_ids = get_named_arg::<Option<Vec<TokenId>>>("token_ids");
-    let token_meta = get_named_arg::<Meta>("token_meta");
-    let count = get_named_arg::<u32>("count");
-    let mut contract = CasperCEP47Contract::new();
-    contract
-        .mint_copies(&recipient, token_ids, token_meta, count)
+    GatewayToken::default()
+        .burn(owner, vec![token_id])
         .unwrap_or_revert();
 }
 
 #[no_mangle]
-pub extern "C" fn burn_one() {
-    let sender = get_caller();
-    if !is_gateway(&sender) {
-        revert(ApiError::PermissionDenied);
+fn transfer() {
+    let recipient = runtime::get_named_arg::<Key>("recipient");
+    let token_ids = runtime::get_named_arg::<Vec<TokenId>>("token_ids");
+    if !GatewayToken::default().is_gatekeeper() {
+        runtime::revert(ApiError::User(20));
     }
-    let owner = get_named_arg::<Key>("owner");
-    let token_id = get_named_arg::<TokenId>("token_id");
-    let mut contract = CasperCEP47Contract::new();
-    contract.burn_one(&owner, token_id);
+    GatewayToken::default()
+        .transfer(recipient, token_ids)
+        .unwrap_or_revert();
 }
 
 #[no_mangle]
-pub extern "C" fn burn_many() {
-    let sender = get_caller();
-    if !is_gateway(&sender) {
-        revert(ApiError::PermissionDenied);
+fn transfer_from() {
+    let sender = runtime::get_named_arg::<Key>("sender");
+    let recipient = runtime::get_named_arg::<Key>("recipient");
+    let token_ids = runtime::get_named_arg::<Vec<TokenId>>("token_ids");
+    if !GatewayToken::default().is_gatekeeper() {
+        runtime::revert(ApiError::User(20));
     }
-    let owner = get_named_arg::<Key>("owner");
-    let token_ids = get_named_arg::<Vec<TokenId>>("token_ids");
-    let mut contract = CasperCEP47Contract::new();
-    contract.burn_many(&owner, token_ids);
+    GatewayToken::default()
+        .transfer_from(sender, recipient, token_ids)
+        .unwrap_or_revert();
 }
 
 #[no_mangle]
-pub extern "C" fn update_token_metadata() {
-    let sender = get_caller();
-    if !is_gateway(&sender) {
-        revert(ApiError::PermissionDenied);
+fn approve() {
+    let spender = runtime::get_named_arg::<Key>("spender");
+    let token_ids = runtime::get_named_arg::<Vec<TokenId>>("token_ids");
+    if !GatewayToken::default().is_gatekeeper() {
+        runtime::revert(ApiError::User(20));
     }
-    let token_id = get_named_arg::<TokenId>("token_id");
-    let meta = get_named_arg::<Meta>("token_meta");
-    let mut contract = CasperCEP47Contract::new();
-    let res = contract.update_token_metadata(token_id, meta);
-    res.unwrap_or_revert();
+    GatewayToken::default()
+        .approve(spender, token_ids)
+        .unwrap_or_revert();
+}
+
+#[no_mangle]
+fn get_approved() {
+    let owner = runtime::get_named_arg::<Key>("owner");
+    let token_id = runtime::get_named_arg::<TokenId>("token_id");
+    let ret = GatewayToken::default().get_approved(owner, token_id);
+    runtime::ret(CLValue::from_t(ret).unwrap_or_revert());
+}
+
+#[no_mangle]
+fn add_gatekeeper() {
+    let gatekeeper = runtime::get_named_arg::<Key>("gatekeeper");
+    GatewayToken::default().assert_caller_is_admin();
+    GatewayToken::default().add_gatekeeper(gatekeeper);
+}
+
+#[no_mangle]
+fn revoke_gatekeeper() {
+    let gatekeeper = runtime::get_named_arg::<Key>("gatekeeper");
+    GatewayToken::default().assert_caller_is_admin();
+    GatewayToken::default().revoke_gatekeeper(gatekeeper);
 }
 
 #[no_mangle]
 pub extern "C" fn call() {
-    let (contract_package_hash, _) =
-        contract::contract_api::storage::create_contract_package_at_hash();
-    let mut entry_points = cep47::get_entrypoints(Some(contract_package_hash));
+    let (package_hash, access_token) = storage::create_contract_package_at_hash();
+    let mut named_keys = NamedKeys::new();
+    let contract_package_hash_wrapped = storage::new_uref(package_hash).into();
+    named_keys.insert(
+        "contract_package_hash".to_string(),
+        contract_package_hash_wrapped,
+    );
+    let (contract_hash, _) =
+        storage::add_contract_version(package_hash, get_entry_points(), named_keys);
 
-    entry_points.add_entry_point(endpoint(
-        "add_gateway",
-        vec![Parameter::new("gateway", CLType::Key)],
-        CLType::Unit,
-        Some("deployer"),
-    ));
+    // Read arguments for the constructor call.
+    let name: String = runtime::get_named_arg("name");
+    let symbol: String = runtime::get_named_arg("symbol");
+    let meta: Meta = runtime::get_named_arg("meta");
 
-    entry_points.add_entry_point(endpoint(
-        "revoke_gatekeepr",
-        vec![Parameter::new("gateway", CLType::Key)],
-        CLType::Unit,
-        Some("deployer"),
-    ));
+    // Prepare constructor args
+    let constructor_args = runtime_args! {
+        "name" => name,
+        "symbol" => symbol,
+        "meta" => meta
+    };
 
-    cep47::deploy(
-        get_named_arg::<String>("token_name"),
-        get_named_arg::<String>("token_symbol"),
-        get_named_arg::<cep47::Meta>("token_uri"),
-        entry_points,
-        contract_package_hash,
-        false,
+    // Add the constructor group to the package hash with a single URef.
+    let constructor_access: URef =
+        storage::create_contract_user_group(package_hash, "constructor", 1, Default::default())
+            .unwrap_or_revert()
+            .pop()
+            .unwrap_or_revert();
+
+    // Call the constructor entry point
+    let _: () =
+        runtime::call_versioned_contract(package_hash, None, "constructor", constructor_args);
+
+    // Remove all URefs from the constructor group, so no one can call it for the second time.
+    let mut urefs = BTreeSet::new();
+    urefs.insert(constructor_access);
+    storage::remove_contract_user_group_urefs(package_hash, "constructor", urefs)
+        .unwrap_or_revert();
+
+    // Store contract in the account's named keys.
+    let contract_name: alloc::string::String = runtime::get_named_arg("contract_name");
+    runtime::put_key(
+        &format!("{}_package_hash", contract_name),
+        package_hash.into(),
+    );
+    runtime::put_key(
+        &format!("{}_package_hash_wrapped", contract_name),
+        contract_package_hash_wrapped,
+    );
+    runtime::put_key(
+        &format!("{}_contract_hash", contract_name),
+        contract_hash.into(),
+    );
+    runtime::put_key(
+        &format!("{}_contract_hash_wrapped", contract_name),
+        storage::new_uref(contract_hash).into(),
+    );
+    runtime::put_key(
+        &format!("{}_package_access_token", contract_name),
+        access_token.into(),
     );
 }
 
-fn gateway_key(account: &Key) -> String {
-    format!("gateway_{}", account)
-}
-
-fn is_gateway(account: &Key) -> bool {
-    let gateway_key = gateway_key(&account);
-    match get_key(&gateway_key) {
-        None => false,
-        Some(_) => true,
-    }
+fn get_entry_points() -> EntryPoints {
+    let mut entry_points = EntryPoints::new();
+    entry_points.add_entry_point(EntryPoint::new(
+        "constructor",
+        vec![
+            Parameter::new("name", String::cl_type()),
+            Parameter::new("symbol", String::cl_type()),
+            Parameter::new("meta", Meta::cl_type()),
+        ],
+        <()>::cl_type(),
+        EntryPointAccess::Groups(vec![Group::new("constructor")]),
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "name",
+        vec![],
+        String::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "symbol",
+        vec![],
+        String::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "meta",
+        vec![],
+        Meta::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "total_supply",
+        vec![],
+        U256::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "balance_of",
+        vec![Parameter::new("owner", Key::cl_type())],
+        U256::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "owner_of",
+        vec![Parameter::new("token_id", TokenId::cl_type())],
+        CLType::Option(Box::new(CLType::Key)),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "token_meta",
+        vec![Parameter::new("token_id", TokenId::cl_type())],
+        Meta::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "update_token_meta",
+        vec![
+            Parameter::new("token_id", TokenId::cl_type()),
+            Parameter::new("token_meta", Meta::cl_type()),
+        ],
+        <()>::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "mint",
+        vec![
+            Parameter::new("recipient", Key::cl_type()),
+            Parameter::new(
+                "token_ids",
+                CLType::Option(Box::new(CLType::List(Box::new(TokenId::cl_type())))),
+            ),
+            Parameter::new("token_metas", CLType::List(Box::new(Meta::cl_type()))),
+        ],
+        <()>::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "mint_copies",
+        vec![
+            Parameter::new("recipient", Key::cl_type()),
+            Parameter::new(
+                "token_ids",
+                CLType::Option(Box::new(CLType::List(Box::new(TokenId::cl_type())))),
+            ),
+            Parameter::new("token_meta", Meta::cl_type()),
+            Parameter::new("count", CLType::U32),
+        ],
+        <()>::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "burn",
+        vec![
+            Parameter::new("owner", Key::cl_type()),
+            Parameter::new("token_ids", CLType::List(Box::new(TokenId::cl_type()))),
+        ],
+        <()>::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "transfer",
+        vec![
+            Parameter::new("recipient", Key::cl_type()),
+            Parameter::new("token_ids", CLType::List(Box::new(TokenId::cl_type()))),
+        ],
+        <()>::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "transfer_from",
+        vec![
+            Parameter::new("sender", Key::cl_type()),
+            Parameter::new("recipient", Key::cl_type()),
+            Parameter::new("token_ids", CLType::List(Box::new(TokenId::cl_type()))),
+        ],
+        <()>::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "approve",
+        vec![
+            Parameter::new("spender", Key::cl_type()),
+            Parameter::new("token_ids", CLType::List(Box::new(TokenId::cl_type()))),
+        ],
+        <()>::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "get_approved",
+        vec![
+            Parameter::new("owner", Key::cl_type()),
+            Parameter::new("token_id", TokenId::cl_type()),
+        ],
+        CLType::Option(Box::new(CLType::Key)),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "get_token_by_index",
+        vec![
+            Parameter::new("owner", Key::cl_type()),
+            Parameter::new("index", U256::cl_type()),
+        ],
+        CLType::Option(Box::new(TokenId::cl_type())),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "add_getkeeper",
+        vec![Parameter::new("gatekeeper", Key::cl_type())],
+        <()>::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "get_token_by_index",
+        vec![Parameter::new("gatekeeper", Key::cl_type())],
+        <()>::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points
 }
