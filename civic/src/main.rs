@@ -136,34 +136,18 @@ fn burn() {
     if !GatewayToken::default().is_gatekeeper() {
         runtime::revert(ApiError::User(20));
     }
-    GatewayToken::default()
-        .burn(owner, vec![token_id])
-        .unwrap_or_revert();
-}
-
-#[no_mangle]
-fn transfer() {
-    let recipient = runtime::get_named_arg::<Key>("recipient");
-    let token_ids = runtime::get_named_arg::<Vec<TokenId>>("token_ids");
-    if !GatewayToken::default().is_gatekeeper() {
-        runtime::revert(ApiError::User(20));
-    }
-    GatewayToken::default()
-        .transfer(recipient, token_ids)
-        .unwrap_or_revert();
+    GatewayToken::default().burn_internal(owner, vec![token_id]);
 }
 
 #[no_mangle]
 fn transfer_from() {
-    let sender = runtime::get_named_arg::<Key>("sender");
+    let owner = runtime::get_named_arg::<Key>("sender");
     let recipient = runtime::get_named_arg::<Key>("recipient");
     let token_ids = runtime::get_named_arg::<Vec<TokenId>>("token_ids");
     if !GatewayToken::default().is_gatekeeper() {
         runtime::revert(ApiError::User(20));
     }
-    GatewayToken::default()
-        .transfer_from(sender, recipient, token_ids)
-        .unwrap_or_revert();
+    GatewayToken::default().transfer_from_internal(owner, recipient, token_ids);
 }
 
 #[no_mangle]
@@ -370,16 +354,6 @@ fn get_entry_points() -> EntryPoints {
         "burn",
         vec![
             Parameter::new("owner", Key::cl_type()),
-            Parameter::new("token_ids", CLType::List(Box::new(TokenId::cl_type()))),
-        ],
-        <()>::cl_type(),
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
-    ));
-    entry_points.add_entry_point(EntryPoint::new(
-        "transfer",
-        vec![
-            Parameter::new("recipient", Key::cl_type()),
             Parameter::new("token_ids", CLType::List(Box::new(TokenId::cl_type()))),
         ],
         <()>::cl_type(),
