@@ -51,7 +51,9 @@ fn constructor() {
     let name = runtime::get_named_arg::<String>("name");
     let symbol = runtime::get_named_arg::<String>("symbol");
     let meta = runtime::get_named_arg::<Meta>("meta");
+    let admin = runtime::get_named_arg::<Key>("admin");
     GatewayToken::default().constructor(name, symbol, meta);
+    GatewayToken::default().add_admin_without_checked(admin);
 }
 
 #[no_mangle]
@@ -111,6 +113,9 @@ fn token_meta() {
 fn update_token_meta() {
     let token_id = runtime::get_named_arg::<TokenId>("token_id");
     let token_meta = runtime::get_named_arg::<Meta>("token_meta");
+    if !GatewayToken::default().is_gatekeeper() {
+        runtime::revert(ApiError::User(20));
+    }
     GatewayToken::default()
         .set_token_meta(token_id, token_meta)
         .unwrap_or_revert();
@@ -151,26 +156,6 @@ fn transfer_from() {
 }
 
 #[no_mangle]
-fn approve() {
-    let spender = runtime::get_named_arg::<Key>("spender");
-    let token_ids = runtime::get_named_arg::<Vec<TokenId>>("token_ids");
-    if !GatewayToken::default().is_gatekeeper() {
-        runtime::revert(ApiError::User(20));
-    }
-    GatewayToken::default()
-        .approve(spender, token_ids)
-        .unwrap_or_revert();
-}
-
-#[no_mangle]
-fn get_approved() {
-    let owner = runtime::get_named_arg::<Key>("owner");
-    let token_id = runtime::get_named_arg::<TokenId>("token_id");
-    let ret = GatewayToken::default().get_approved(owner, token_id);
-    runtime::ret(CLValue::from_t(ret).unwrap_or_revert());
-}
-
-#[no_mangle]
 fn add_gatekeeper() {
     let gatekeeper = runtime::get_named_arg::<Key>("gatekeeper");
     GatewayToken::default().assert_caller_is_admin();
@@ -200,12 +185,14 @@ pub extern "C" fn call() {
     let name: String = runtime::get_named_arg("name");
     let symbol: String = runtime::get_named_arg("symbol");
     let meta: Meta = runtime::get_named_arg("meta");
+    let admin: Key = runtime::get_named_arg("admin");
 
     // Prepare constructor args
     let constructor_args = runtime_args! {
         "name" => name,
         "symbol" => symbol,
-        "meta" => meta
+        "meta" => meta,
+        "admin" => admin
     };
 
     // Add the constructor group to the package hash with a single URef.
@@ -336,21 +323,6 @@ fn get_entry_points() -> EntryPoints {
         EntryPointType::Contract,
     ));
     entry_points.add_entry_point(EntryPoint::new(
-        "mint_copies",
-        vec![
-            Parameter::new("recipient", Key::cl_type()),
-            Parameter::new(
-                "token_ids",
-                CLType::Option(Box::new(CLType::List(Box::new(TokenId::cl_type())))),
-            ),
-            Parameter::new("token_meta", Meta::cl_type()),
-            Parameter::new("count", CLType::U32),
-        ],
-        <()>::cl_type(),
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
-    ));
-    entry_points.add_entry_point(EntryPoint::new(
         "burn",
         vec![
             Parameter::new("owner", Key::cl_type()),
@@ -372,26 +344,6 @@ fn get_entry_points() -> EntryPoints {
         EntryPointType::Contract,
     ));
     entry_points.add_entry_point(EntryPoint::new(
-        "approve",
-        vec![
-            Parameter::new("spender", Key::cl_type()),
-            Parameter::new("token_ids", CLType::List(Box::new(TokenId::cl_type()))),
-        ],
-        <()>::cl_type(),
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
-    ));
-    entry_points.add_entry_point(EntryPoint::new(
-        "get_approved",
-        vec![
-            Parameter::new("owner", Key::cl_type()),
-            Parameter::new("token_id", TokenId::cl_type()),
-        ],
-        CLType::Option(Box::new(CLType::Key)),
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
-    ));
-    entry_points.add_entry_point(EntryPoint::new(
         "get_token_by_index",
         vec![
             Parameter::new("owner", Key::cl_type()),
@@ -402,14 +354,14 @@ fn get_entry_points() -> EntryPoints {
         EntryPointType::Contract,
     ));
     entry_points.add_entry_point(EntryPoint::new(
-        "add_getkeeper",
+        "add_gatekeeper",
         vec![Parameter::new("gatekeeper", Key::cl_type())],
         <()>::cl_type(),
         EntryPointAccess::Public,
         EntryPointType::Contract,
     ));
     entry_points.add_entry_point(EntryPoint::new(
-        "get_token_by_index",
+        "revoke_gatekeeper",
         vec![Parameter::new("gatekeeper", Key::cl_type())],
         <()>::cl_type(),
         EntryPointAccess::Public,
