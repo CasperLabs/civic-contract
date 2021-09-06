@@ -54,6 +54,7 @@ fn constructor() {
     let admin = runtime::get_named_arg::<Key>("admin");
     GatewayToken::default().constructor(name, symbol, meta);
     GatewayToken::default().add_admin_without_checked(admin);
+    GatewayToken::default().add_gatekeeper(admin);
 }
 
 #[no_mangle]

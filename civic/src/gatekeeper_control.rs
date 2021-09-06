@@ -18,7 +18,7 @@ pub trait GateKeeperControl<Storage: ContractStorage>: ContractContext<Storage> 
 
     fn is_gatekeeper(&self) -> bool {
         let caller = self.get_caller();
-        !GateKeepers::instance().is_gatekeeper(&caller)
+        GateKeepers::instance().is_gatekeeper(&caller)
     }
 }
 
