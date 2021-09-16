@@ -105,10 +105,10 @@ impl CIVICInstance {
         )
     }
 
-    pub fn add_gatekeeper<T: Into<Key>>(&self, sender: Sender, gatekeeper: T) {
+    pub fn grant_gatekeeper<T: Into<Key>>(&self, sender: Sender, gatekeeper: T) {
         self.0.call_contract(
             sender,
-            "add_gatekeeper",
+            "grant_gatekeeper",
             runtime_args! {
                 "gatekeeper" => gatekeeper.into()
             },
@@ -121,6 +121,26 @@ impl CIVICInstance {
             "revoke_gatekeeper",
             runtime_args! {
                 "gatekeeper" => gatekeeper.into()
+            },
+        )
+    }
+
+    pub fn grant_admin<T: Into<Key>>(&self, sender: Sender, admin: T) {
+        self.0.call_contract(
+            sender,
+            "grant_admin",
+            runtime_args! {
+                "admin" => admin.into()
+            },
+        )
+    }
+
+    pub fn revoke_admin<T: Into<Key>>(&self, sender: Sender, admin: T) {
+        self.0.call_contract(
+            sender,
+            "revoke_admin",
+            runtime_args! {
+                "admin" => admin.into()
             },
         )
     }

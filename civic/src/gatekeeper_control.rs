@@ -1,6 +1,9 @@
 use cep47::contract_utils::{ContractContext, ContractStorage, Dict};
-use contract::{contract_api::storage, unwrap_or_revert::UnwrapOrRevert};
-use types::Key;
+use contract::{
+    contract_api::{runtime, storage},
+    unwrap_or_revert::UnwrapOrRevert,
+};
+use types::{ApiError, Key};
 
 const GATEKEEPERS_DICT: &str = "gatekeepers";
 pub trait GateKeeperControl<Storage: ContractStorage>: ContractContext<Storage> {
@@ -19,6 +22,12 @@ pub trait GateKeeperControl<Storage: ContractStorage>: ContractContext<Storage> 
     fn is_gatekeeper(&self) -> bool {
         let caller = self.get_caller();
         GateKeepers::instance().is_gatekeeper(&caller)
+    }
+
+    fn assert_caller_is_gatekeeper(&self) {
+        if !self.is_gatekeeper() {
+            runtime::revert(ApiError::User(20));
+        }
     }
 }
 

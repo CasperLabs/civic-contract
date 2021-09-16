@@ -26,6 +26,16 @@ use types::{
 mod gatekeeper_control;
 use gatekeeper_control::GateKeeperControl;
 
+#[repr(u8)]
+pub enum Status {
+    Unregistered = 0,
+    Revoked = 1,
+    Frozen = 2,
+    Active = 3,
+}
+
+pub const STATUS_KEY: &str = "status";
+
 #[derive(Default)]
 struct GatewayToken(OnChainContractStorage);
 
@@ -43,6 +53,35 @@ impl GatewayToken {
         CEP47::init(self, name, symbol, meta);
         AdminControl::init(self);
         GateKeeperControl::init(self);
+    }
+
+    fn is_kyc_proved(&self, account: Key, index: Option<U256>) -> bool {
+        let token_id = self.get_token_by_index(account, index.unwrap_or_default());
+        if token_id.is_none() {
+            return false;
+        }
+        let token_metadata = self.token_meta(token_id.unwrap());
+        if token_metadata.is_none() {
+            return false;
+        }
+        if let Some(status) = token_metadata.unwrap().get(STATUS_KEY) {
+            match status.clone().as_str() {
+                stringify!(Status::Active) => {
+                    return true;
+                }
+                _ => {
+                    return false;
+                }
+            }
+        }
+        false
+    }
+
+    fn assert_authorized_caller(&self) {
+        let caller = self.get_caller();
+        if !self.is_gatekeeper() && !self.is_admin(caller) {
+            runtime::revert(ApiError::User(20));
+        }
     }
 }
 
@@ -111,12 +150,18 @@ fn token_meta() {
 }
 
 #[no_mangle]
+fn is_kyc_proved() {
+    let account = runtime::get_named_arg::<Key>("account");
+    let index = runtime::get_named_arg::<Option<U256>>("index");
+    let ret = GatewayToken::default().is_kyc_proved(account, index);
+    runtime::ret(CLValue::from_t(ret).unwrap_or_revert());
+}
+
+#[no_mangle]
 fn update_token_meta() {
     let token_id = runtime::get_named_arg::<TokenId>("token_id");
     let token_meta = runtime::get_named_arg::<Meta>("token_meta");
-    if !GatewayToken::default().is_gatekeeper() {
-        runtime::revert(ApiError::User(20));
-    }
+    GatewayToken::default().assert_authorized_caller();
     GatewayToken::default()
         .set_token_meta(token_id, token_meta)
         .unwrap_or_revert();
@@ -127,9 +172,7 @@ fn mint() {
     let recipient = runtime::get_named_arg::<Key>("recipient");
     let token_id = runtime::get_named_arg::<Option<TokenId>>("token_id");
     let token_meta = runtime::get_named_arg::<Meta>("token_meta");
-    if !GatewayToken::default().is_gatekeeper() {
-        runtime::revert(ApiError::User(20));
-    }
+    GatewayToken::default().assert_caller_is_gatekeeper();
     GatewayToken::default()
         .mint(recipient, token_id.map(|x| vec![x]), vec![token_meta])
         .unwrap_or_revert();
@@ -139,10 +182,10 @@ fn mint() {
 fn burn() {
     let owner = runtime::get_named_arg::<Key>("owner");
     let token_id = runtime::get_named_arg::<TokenId>("token_id");
-    if !GatewayToken::default().is_gatekeeper() {
-        runtime::revert(ApiError::User(20));
-    }
-    GatewayToken::default().burn_internal(owner, vec![token_id]);
+    GatewayToken::default().assert_authorized_caller();
+    GatewayToken::default()
+        .burn_internal(owner, vec![token_id])
+        .unwrap_or_revert();
 }
 
 #[no_mangle]
@@ -150,14 +193,14 @@ fn transfer_from() {
     let owner = runtime::get_named_arg::<Key>("sender");
     let recipient = runtime::get_named_arg::<Key>("recipient");
     let token_ids = runtime::get_named_arg::<Vec<TokenId>>("token_ids");
-    if !GatewayToken::default().is_gatekeeper() {
-        runtime::revert(ApiError::User(20));
-    }
-    GatewayToken::default().transfer_from_internal(owner, recipient, token_ids);
+    GatewayToken::default().assert_caller_is_admin();
+    GatewayToken::default()
+        .transfer_from_internal(owner, recipient, token_ids)
+        .unwrap_or_revert();
 }
 
 #[no_mangle]
-fn add_gatekeeper() {
+fn grant_gatekeeper() {
     let gatekeeper = runtime::get_named_arg::<Key>("gatekeeper");
     GatewayToken::default().assert_caller_is_admin();
     GatewayToken::default().add_gatekeeper(gatekeeper);
@@ -168,6 +211,18 @@ fn revoke_gatekeeper() {
     let gatekeeper = runtime::get_named_arg::<Key>("gatekeeper");
     GatewayToken::default().assert_caller_is_admin();
     GatewayToken::default().revoke_gatekeeper(gatekeeper);
+}
+
+#[no_mangle]
+fn grant_admin() {
+    let admin = runtime::get_named_arg::<Key>("admin");
+    GatewayToken::default().add_admin(admin);
+}
+
+#[no_mangle]
+fn revoke_admin() {
+    let admin = runtime::get_named_arg::<Key>("admin");
+    GatewayToken::default().disable_admin(admin);
 }
 
 #[no_mangle]
@@ -293,6 +348,16 @@ fn get_entry_points() -> EntryPoints {
         EntryPointType::Contract,
     ));
     entry_points.add_entry_point(EntryPoint::new(
+        "is_kyc_proved",
+        vec![
+            Parameter::new("account", Key::cl_type()),
+            Parameter::new("index", CLType::Option(Box::new(U256::cl_type()))),
+        ],
+        CLType::Bool,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
         "token_meta",
         vec![Parameter::new("token_id", TokenId::cl_type())],
         Meta::cl_type(),
@@ -355,7 +420,7 @@ fn get_entry_points() -> EntryPoints {
         EntryPointType::Contract,
     ));
     entry_points.add_entry_point(EntryPoint::new(
-        "add_gatekeeper",
+        "grant_gatekeeper",
         vec![Parameter::new("gatekeeper", Key::cl_type())],
         <()>::cl_type(),
         EntryPointAccess::Public,
@@ -364,6 +429,20 @@ fn get_entry_points() -> EntryPoints {
     entry_points.add_entry_point(EntryPoint::new(
         "revoke_gatekeeper",
         vec![Parameter::new("gatekeeper", Key::cl_type())],
+        <()>::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "grant_admin",
+        vec![Parameter::new("admin", Key::cl_type())],
+        <()>::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "revoke_admin",
+        vec![Parameter::new("admin", Key::cl_type())],
         <()>::cl_type(),
         EntryPointAccess::Public,
         EntryPointType::Contract,

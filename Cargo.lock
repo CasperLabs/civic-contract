@@ -4,9 +4,9 @@ version = 3
 
 [[package]]
 name = "anyhow"
-version = "1.0.43"
+version = "1.0.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28ae2b3dec75a406790005a200b1bd89785afc02517a00ca99ecfe093ee9e6cf"
+checksum = "61604a8f862e1d5c3229fdd78f8b02c68dcf73a4c4b05fd636d12240aaa242c1"
 
 [[package]]
 name = "autocfg"
@@ -95,9 +95,9 @@ checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
 name = "casper-contract"
-version = "1.3.2"
+version = "1.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43c0e5d5699d804babbb360b051ebf864cc46dbd95c45b7705e06eba8b3c9bbe"
+checksum = "92f74203822b7bcb7c2c69e4687b87cb3fbc90fe9462f2ac9b2039f59689ca56"
 dependencies = [
  "casper-types",
  "hex_fmt",
@@ -108,9 +108,9 @@ dependencies = [
 
 [[package]]
 name = "casper-engine-test-support"
-version = "1.3.2"
+version = "1.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "44af6d2e19d743ed85e5f7e63836dbc3d3e5d0ce3aab92346df5d057e4b0baba"
+checksum = "a168c03321700e72ef87831dc66fdfa7252caf4403e68c5a0f1c7fa5d646322d"
 dependencies = [
  "casper-contract",
  "casper-execution-engine",
@@ -125,9 +125,9 @@ dependencies = [
 
 [[package]]
 name = "casper-execution-engine"
-version = "1.3.2"
+version = "1.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "835acc287eec782dea4d55890da5c1343025417842e1ac06a8c9beda2226f2cc"
+checksum = "5c63733518cae59a364e61d8e9a1fa2062d150f5da0de89eef632aea8369b2f7"
 dependencies = [
  "anyhow",
  "base16",
@@ -168,9 +168,9 @@ dependencies = [
 
 [[package]]
 name = "casper-types"
-version = "1.3.2"
+version = "1.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e59b710b0390285d63401ba32298aa81cdbc31104a654136bf1e5f55980e97b2"
+checksum = "7438162eb8a0cfc14a87e6b97b7dcf7bed61f1e98ce804bd0d10f8b66ed07c23"
 dependencies = [
  "base16",
  "base64",
@@ -205,7 +205,7 @@ checksum = "d26a6ce4b6a484fa3edb70f7efa6fc430fd2b87285fe8b84304fd0936faa0dc0"
 [[package]]
 name = "cep47"
 version = "0.2.0"
-source = "git+https://github.com/casper-ecosystem/casper-nft-cep47?branch=feature/reorg_lib#3ccbbf8603777683b84cb8e48b2d47301ff66166"
+source = "git+https://github.com/casper-ecosystem/casper-nft-cep47?branch=feature/reorg_lib#ea96ec451417bb8307eae22613b37ec83fe62eb2"
 dependencies = [
  "casper-contract",
  "casper-types",
@@ -250,7 +250,7 @@ dependencies = [
 [[package]]
 name = "contract-utils"
 version = "0.1.0"
-source = "git+https://github.com/casper-ecosystem/casper-nft-cep47?branch=feature/reorg_lib#3ccbbf8603777683b84cb8e48b2d47301ff66166"
+source = "git+https://github.com/casper-ecosystem/casper-nft-cep47?branch=feature/reorg_lib#ea96ec451417bb8307eae22613b37ec83fe62eb2"
 dependencies = [
  "casper-contract",
  "casper-types",
@@ -610,9 +610,9 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "libc"
-version = "0.2.101"
+version = "0.2.102"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3cb00336871be5ed2c8ed44b60ae9959dc5b9f08539422ed43f09e34ecaeba21"
+checksum = "a2a5ac8f984bfcf3a823267e5fde638acc3325f6496633a5da6bb6eb2171e103"
 
 [[package]]
 name = "linked-hash-map"
@@ -1127,9 +1127,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.67"
+version = "1.0.68"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a7f9e390c27c3c0ce8bc5d725f6e4d30a29d26659494aa4b17535f7522c5c950"
+checksum = "0f690853975602e1bfe1ccbf50504d67174e3bcf340f23b5ea9992e0587a52d8"
 dependencies = [
  "itoa",
  "ryu",
@@ -1138,9 +1138,9 @@ dependencies = [
 
 [[package]]
 name = "sha2"
-version = "0.9.6"
+version = "0.9.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9204c41a1597a8c5af23c82d1c921cb01ec0a4c59e07a9c7306062829a3903f3"
+checksum = "b69f9a4c9740d74c5baa3fd2e547f9525fa8088a8a958e0ca2409a514e33f5fa"
 dependencies = [
  "block-buffer",
  "cfg-if 1.0.0",
@@ -1261,9 +1261,9 @@ dependencies = [
 
 [[package]]
 name = "tinyvec"
-version = "1.3.1"
+version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "848a1e1181b9f6753b5e96a092749e29b11d19ede67dfbbd6c7dc7e0f49b5338"
+checksum = "5241dd6f21443a3606b432718b166d3cedc962fd4b8bea54a8bc7f514ebda986"
 dependencies = [
  "tinyvec_macros",
 ]
@@ -1285,9 +1285,9 @@ dependencies = [
 
 [[package]]
 name = "tracing"
-version = "0.1.26"
+version = "0.1.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09adeb8c97449311ccd28a427f96fb563e7fd31aabf994189879d9da2394b89d"
+checksum = "c2ba9ab62b7d6497a8638dfda5e5c4fb3b2d5a7fca4118f2b96151c8ef1a437e"
 dependencies = [
  "cfg-if 1.0.0",
  "pin-project-lite",
@@ -1297,9 +1297,9 @@ dependencies = [
 
 [[package]]
 name = "tracing-attributes"
-version = "0.1.15"
+version = "0.1.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c42e6fa53307c8a17e4ccd4dc81cf5ec38db9209f59b222210375b54ee40d1e2"
+checksum = "98863d0dd09fa59a1b79c6750ad80dbda6b75f4e71c437a6a1a8cb91a8bcbd77"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1308,9 +1308,9 @@ dependencies = [
 
 [[package]]
 name = "tracing-core"
-version = "0.1.19"
+version = "0.1.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2ca517f43f0fb96e0c3072ed5c275fe5eece87e8cb52f4a77b69226d3b1c9df8"
+checksum = "46125608c26121c81b0c6d693eab5a420e416da7e43c426d2e8f7df8da8a3acf"
 dependencies = [
  "lazy_static",
 ]
