@@ -1,5 +1,6 @@
 # KYC Contract
 
+The KYC contract was designed to provide a mechanism on issuing KYC verification on accounts interacting with the Auction mechanics (see [Auction contract]()) based on KYC / Identity Verification standards operated by Civic https://www.civic.com/  
 This repository contains the general KYC Contract written based on Casper NFT Protocol - [CEP47](https://github.com/casper-ecosystem/casper-nft-cep47)
 
 ## Contract Data Model
