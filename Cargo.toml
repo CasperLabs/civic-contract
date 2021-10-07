@@ -1,9 +1,10 @@
 [workspace]
 
 members = [
-	"tests",
-	"civic"
+	"civic",
+	"tests"
 ]
 
 [profile.release]
+codegen-units = 1
 lto = true

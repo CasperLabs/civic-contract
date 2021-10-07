@@ -7,19 +7,14 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-contract = { package="casper-contract", version = "1.2.0" }
-types = { package="casper-types", version = "1.2.0" }
-cep47 = { git="https://github.com/casper-ecosystem/casper-nft-cep47", branch="develop" }
+contract = { package="casper-contract", version = "1.3.2" }
+types = { package="casper-types", version = "1.3.2" }
+cep47 = { git="https://github.com/casper-ecosystem/casper-nft-cep47", branch="feature/reorg_lib" }
 
 [[bin]]
-name = "civic"
-path = "src/main.rs"
+name = "civic-token"
+path = "src/civic_token.rs"
 bench = false
 doctest = false
 test = false
 
-[features]
-default = ["contract/std", "types/std"]
-
-[net]
-git-fetch-with-cli = true
