@@ -158,10 +158,25 @@ fn is_kyc_proved() {
 }
 
 #[no_mangle]
-fn update_token_meta() {
+fn set_token_meta() {
     let token_id = runtime::get_named_arg::<TokenId>("token_id");
     let token_meta = runtime::get_named_arg::<Meta>("token_meta");
     GatewayToken::default().assert_authorized_caller();
+    GatewayToken::default()
+        .set_token_meta(token_id, token_meta)
+        .unwrap_or_revert();
+}
+
+#[no_mangle]
+fn update_token_meta() {
+    let token_id = runtime::get_named_arg::<TokenId>("token_id");
+    let token_meta_key = runtime::get_named_arg::<String>("token_meta_key");
+    let token_meta_value = runtime::get_named_arg::<String>("token_meta_value");
+    let mut token_meta = GatewayToken::default()
+        .token_meta(token_id.clone())
+        .unwrap_or_revert();
+    GatewayToken::default().assert_authorized_caller();
+    token_meta.insert(token_meta_key, token_meta_value);
     GatewayToken::default()
         .set_token_meta(token_id, token_meta)
         .unwrap_or_revert();
@@ -365,10 +380,21 @@ fn get_entry_points() -> EntryPoints {
         EntryPointType::Contract,
     ));
     entry_points.add_entry_point(EntryPoint::new(
-        "update_token_meta",
+        "set_token_meta",
         vec![
             Parameter::new("token_id", TokenId::cl_type()),
             Parameter::new("token_meta", Meta::cl_type()),
+        ],
+        <()>::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "update_token_meta",
+        vec![
+            Parameter::new("token_id", TokenId::cl_type()),
+            Parameter::new("token_meta_key", String::cl_type()),
+            Parameter::new("token_meta_value", String::cl_type()),
         ],
         <()>::cl_type(),
         EntryPointAccess::Public,

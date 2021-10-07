@@ -94,13 +94,31 @@ impl CIVICInstance {
         )
     }
 
-    pub fn update_token_meta(&self, sender: Sender, token_id: TokenId, token_meta: Meta) {
+    pub fn set_token_meta(&self, sender: Sender, token_id: TokenId, token_meta: Meta) {
+        self.0.call_contract(
+            sender,
+            "set_token_meta",
+            runtime_args! {
+                "token_id" => token_id,
+                "token_meta" => token_meta
+            },
+        )
+    }
+
+    pub fn update_token_meta(
+        &self,
+        sender: Sender,
+        token_id: TokenId,
+        token_meta_key: String,
+        token_meta_value: String,
+    ) {
         self.0.call_contract(
             sender,
             "update_token_meta",
             runtime_args! {
                 "token_id" => token_id,
-                "token_meta" => token_meta
+                "token_meta_key" => token_meta_key,
+                "token_meta_value" => token_meta_value
             },
         )
     }

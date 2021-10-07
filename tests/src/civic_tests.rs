@@ -240,6 +240,41 @@ fn test_token_meta() {
 }
 
 #[test]
+fn test_token_metadata_set_from_gatekeeper() {
+    let (env, token, owner) = deploy();
+    let ali = env.next_user();
+    let bob = env.next_user();
+    let token_id = TokenId::from("123456");
+
+    token.mint(
+        Sender(owner),
+        bob,
+        Some(token_id.clone()),
+        meta::unverified_kyc(),
+    );
+    token.grant_gatekeeper(Sender(owner), ali);
+    token.set_token_meta(Sender(ali), token_id.clone(), meta::verified_kyc());
+    assert_eq!(token.token_meta(token_id).unwrap(), meta::verified_kyc());
+}
+
+#[test]
+#[should_panic]
+fn test_token_metadata_set_from_non_gatekeeper() {
+    let (env, token, owner) = deploy();
+    let ali = env.next_user();
+    let bob = env.next_user();
+    let token_id = TokenId::from("123456");
+
+    token.mint(
+        Sender(owner),
+        bob,
+        Some(token_id.clone()),
+        meta::unverified_kyc(),
+    );
+    token.set_token_meta(Sender(ali), token_id, meta::verified_kyc());
+}
+
+#[test]
 fn test_token_metadata_update_from_gatekeeper() {
     let (env, token, owner) = deploy();
     let ali = env.next_user();
@@ -253,8 +288,16 @@ fn test_token_metadata_update_from_gatekeeper() {
         meta::unverified_kyc(),
     );
     token.grant_gatekeeper(Sender(owner), ali);
-    token.update_token_meta(Sender(ali), token_id.clone(), meta::verified_kyc());
-    assert_eq!(token.token_meta(token_id).unwrap(), meta::verified_kyc());
+    token.set_token_meta(Sender(ali), token_id.clone(), meta::verified_kyc());
+    token.update_token_meta(
+        Sender(ali),
+        token_id.clone(),
+        String::from("expiry"),
+        String::from("5555555"),
+    );
+    let mut expected_result = meta::verified_kyc();
+    expected_result.insert(String::from("expiry"), String::from("5555555"));
+    assert_eq!(token.token_meta(token_id).unwrap(), expected_result);
 }
 
 #[test]
@@ -271,5 +314,13 @@ fn test_token_metadata_update_from_non_gatekeeper() {
         Some(token_id.clone()),
         meta::unverified_kyc(),
     );
-    token.update_token_meta(Sender(ali), token_id, meta::verified_kyc());
+    token.grant_gatekeeper(Sender(owner), ali);
+    token.set_token_meta(Sender(ali), token_id.clone(), meta::verified_kyc());
+    token.revoke_gatekeeper(Sender(owner), ali);
+    token.update_token_meta(
+        Sender(ali),
+        token_id,
+        String::from("expiry"),
+        String::from("5555555"),
+    );
 }

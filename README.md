@@ -31,16 +31,17 @@ They can be grouped into following topics:
 | --- | --- |
 | mint | Mint a new token to the provided account (Only gatekeepers) |
 | burn | Burn an existing token from the provided account (Only gatekeepers/admins) |
-| transfer_from | Transfer a token from a user to another one. (Only admins) |
-| update_token_meta | Update metadata of an existing token. (Only gatekeepers/admins) |
+| transfer_from | Transfer a token from a user to another one (Only admins) |
+| update_token_meta | Update partial metadata of an existing token (Only gatekeepers/admins) |
+| set_token_meta | Set metadata of an existing token (Only gatekeepers/admins) |
 
 ### Access Management
 | Name | Description |
 | --- | --- |
-| grant_gatekeeper | Grant the gatekeeper role to the provided account. (Only admins) |
-| revoke_gatekeeper | Revoke the gatekeeper role from the provided account. (Only admins) |
-| grant_admin | Grant the admin role to the provided account. (Only admins) |
-| revoke_admin | Revoke the admin role from the provided account. (Only admins) |
+| grant_gatekeeper | Grant the gatekeeper role to the provided account (Only admins) |
+| revoke_gatekeeper | Revoke the gatekeeper role from the provided account (Only admins) |
+| grant_admin | Grant the admin role to the provided account (Only admins) |
+| revoke_admin | Revoke the admin role from the provided account (Only admins) |
 
 ## Install
 Make sure the `wasm32-unknown-unknown` target is installed.
