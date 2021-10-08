@@ -26,15 +26,8 @@ use types::{
 mod gatekeeper_control;
 use gatekeeper_control::GateKeeperControl;
 
-#[repr(u8)]
-pub enum Status {
-    Unregistered = 0,
-    Revoked = 1,
-    Frozen = 2,
-    Active = 3,
-}
-
 pub const STATUS_KEY: &str = "status";
+pub const ACTIVE_STATUS: &str = "active";
 
 #[derive(Default)]
 struct GatewayToken(OnChainContractStorage);
@@ -65,13 +58,8 @@ impl GatewayToken {
             return false;
         }
         if let Some(status) = token_metadata.unwrap().get(STATUS_KEY) {
-            match status.clone().as_str() {
-                stringify!(Status::Active) => {
-                    return true;
-                }
-                _ => {
-                    return false;
-                }
+            if status.eq(ACTIVE_STATUS) {
+                return true;
             }
         }
         false
