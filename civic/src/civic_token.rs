@@ -26,14 +26,6 @@ use types::{
 mod gatekeeper_control;
 use gatekeeper_control::GateKeeperControl;
 
-#[repr(u8)]
-pub enum Status {
-    Unregistered = 0,
-    Revoked = 1,
-    Frozen = 2,
-    Active = 3,
-}
-
 pub const STATUS_KEY: &str = "status";
 
 #[derive(Default)]
@@ -66,7 +58,7 @@ impl GatewayToken {
         }
         if let Some(status) = token_metadata.unwrap().get(STATUS_KEY) {
             match status.clone().as_str() {
-                stringify!(Status::Active) => {
+                "active" => {
                     return true;
                 }
                 _ => {
