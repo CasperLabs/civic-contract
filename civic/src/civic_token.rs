@@ -26,12 +26,12 @@ use types::{
 mod gatekeeper_control;
 use gatekeeper_control::GateKeeperControl;
 
-#[repr(u8)]
+#[derive(strum_macros::Display)]
 pub enum Status {
-    Unregistered = 0,
-    Revoked = 1,
-    Frozen = 2,
-    Active = 3,
+    Unregistered,
+    Revoked,
+    Frozen,
+    Active,
 }
 
 pub const STATUS_KEY: &str = "status";
@@ -65,13 +65,9 @@ impl GatewayToken {
             return false;
         }
         if let Some(status) = token_metadata.unwrap().get(STATUS_KEY) {
-            match status.clone().as_str() {
-                stringify!(Status::Active) => {
-                    return true;
-                }
-                _ => {
-                    return false;
-                }
+            let active_status = Status::Active.to_string();
+            if status.eq(&active_status) {
+                return true;
             }
         }
         false
