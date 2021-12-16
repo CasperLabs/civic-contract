@@ -182,16 +182,6 @@ fn mint() {
 }
 
 #[no_mangle]
-fn burn() {
-    let owner = runtime::get_named_arg::<Key>("owner");
-    let token_id = runtime::get_named_arg::<TokenId>("token_id");
-    GatewayToken::default().assert_authorized_caller();
-    GatewayToken::default()
-        .burn_internal(owner, vec![token_id])
-        .unwrap_or_revert();
-}
-
-#[no_mangle]
 fn transfer_from() {
     let owner = runtime::get_named_arg::<Key>("sender");
     let recipient = runtime::get_named_arg::<Key>("recipient");
@@ -397,16 +387,6 @@ fn get_entry_points() -> EntryPoints {
                 CLType::Option(Box::new(CLType::List(Box::new(TokenId::cl_type())))),
             ),
             Parameter::new("token_metas", CLType::List(Box::new(Meta::cl_type()))),
-        ],
-        <()>::cl_type(),
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
-    ));
-    entry_points.add_entry_point(EntryPoint::new(
-        "burn",
-        vec![
-            Parameter::new("owner", Key::cl_type()),
-            Parameter::new("token_ids", CLType::List(Box::new(TokenId::cl_type()))),
         ],
         <()>::cl_type(),
         EntryPointAccess::Public,

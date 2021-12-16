@@ -107,47 +107,6 @@ fn test_mint_from_non_gatekeeper() {
 }
 
 #[test]
-fn test_burn_from_gatekeeper() {
-    let (env, token, owner) = deploy();
-    let ali = env.next_user();
-    let bob = env.next_user();
-    token.mint(Sender(owner), bob, None, meta::unverified_kyc());
-    token.mint(Sender(owner), bob, None, meta::verified_kyc());
-
-    token.grant_gatekeeper(Sender(owner), ali);
-
-    let first_user_token = token.get_token_by_index(Key::Account(bob), U256::from(0));
-    let second_user_token = token.get_token_by_index(Key::Account(bob), U256::from(1));
-    token.burn(Sender(ali), bob, first_user_token.unwrap());
-    assert_eq!(token.total_supply(), U256::from(1));
-    assert_eq!(token.balance_of(Key::Account(bob)), U256::from(1));
-
-    let new_first_user_token = token.get_token_by_index(Key::Account(bob), U256::from(0));
-    let new_second_user_token = token.get_token_by_index(Key::Account(bob), U256::from(1));
-    assert_eq!(new_first_user_token, second_user_token);
-    assert_eq!(new_second_user_token, None);
-}
-
-#[test]
-#[should_panic]
-fn test_burn_from_non_gatekeeper() {
-    let (env, token, owner) = deploy();
-    let ali = env.next_user();
-    let bob = env.next_user();
-    token.mint(Sender(owner), bob, None, meta::unverified_kyc());
-    token.mint(Sender(owner), bob, None, meta::verified_kyc());
-
-    token.grant_gatekeeper(Sender(owner), ali);
-
-    let first_user_token = token.get_token_by_index(Key::Account(bob), U256::from(0));
-    let second_user_token = token.get_token_by_index(Key::Account(bob), U256::from(1));
-    token.burn(Sender(ali), bob, first_user_token.unwrap());
-
-    token.revoke_gatekeeper(Sender(owner), ali);
-    token.burn(Sender(ali), bob, second_user_token.unwrap()); // panic here
-}
-
-#[test]
 fn test_transfer_from_admin() {
     let (env, token, owner) = deploy();
     let ali = env.next_user();

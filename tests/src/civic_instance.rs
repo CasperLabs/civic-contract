@@ -65,17 +65,6 @@ impl CIVICInstance {
         )
     }
 
-    pub fn burn<T: Into<Key>>(&self, sender: Sender, owner: T, token_id: TokenId) {
-        self.0.call_contract(
-            sender,
-            "burn",
-            runtime_args! {
-                "owner" => owner.into(),
-                "token_id" => token_id,
-            },
-        )
-    }
-
     pub fn transfer_from<T: Into<Key>>(
         &self,
         sender: Sender,
