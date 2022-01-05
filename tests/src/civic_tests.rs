@@ -1,7 +1,6 @@
-use casper_engine_test_support::AccountHash;
-use casper_types::{Key, U256};
+use casper_types::{account::AccountHash, Key, U256};
 use std::collections::BTreeMap;
-use test_env::{Sender, TestEnv};
+use test_env::TestEnv;
 
 use crate::civic_instance::{CIVICInstance, Meta, TokenId};
 
@@ -35,7 +34,7 @@ fn deploy() -> (TestEnv, CIVICInstance, AccountHash) {
     let token = CIVICInstance::new(
         &env,
         NAME,
-        Sender(owner),
+        owner,
         NAME,
         SYMBOL,
         meta::contract_meta(),
@@ -59,7 +58,7 @@ fn test_add_gatekeeper() {
     let (env, token, owner) = deploy();
     let user = env.next_user();
 
-    token.grant_gatekeeper(Sender(owner), user);
+    token.grant_gatekeeper(owner, user);
     assert!(token.is_gatekeeper(user));
 }
 
@@ -68,10 +67,10 @@ fn test_revoke_gatekeeper() {
     let (env, token, owner) = deploy();
     let user = env.next_user();
 
-    token.grant_gatekeeper(Sender(owner), user);
+    token.grant_gatekeeper(owner, user);
     assert!(token.is_gatekeeper(user));
 
-    token.revoke_gatekeeper(Sender(owner), user);
+    token.revoke_gatekeeper(owner, user);
     assert!(!token.is_gatekeeper(user));
 }
 
@@ -83,9 +82,9 @@ fn test_mint_from_gatekeeper() {
     let token_id = TokenId::from("custom_token_id");
     let token_meta = meta::unverified_kyc();
 
-    token.grant_gatekeeper(Sender(owner), ali);
+    token.grant_gatekeeper(owner, ali);
 
-    token.mint(Sender(ali), bob, Some(token_id.clone()), token_meta.clone());
+    token.mint(ali, bob, Some(token_id.clone()), token_meta.clone());
 
     let user_token_meta = token.token_meta(token_id.clone());
     assert_eq!(user_token_meta.unwrap(), token_meta);
@@ -103,7 +102,7 @@ fn test_mint_from_non_gatekeeper() {
     let token_id = TokenId::from("custom_token_id");
     let token_meta = meta::unverified_kyc();
 
-    token.mint(Sender(ali), bob, Some(token_id), token_meta);
+    token.mint(ali, bob, Some(token_id), token_meta);
 }
 
 #[test]
@@ -111,14 +110,14 @@ fn test_burn_from_gatekeeper() {
     let (env, token, owner) = deploy();
     let ali = env.next_user();
     let bob = env.next_user();
-    token.mint(Sender(owner), bob, None, meta::unverified_kyc());
-    token.mint(Sender(owner), bob, None, meta::verified_kyc());
+    token.mint(owner, bob, None, meta::unverified_kyc());
+    token.mint(owner, bob, None, meta::verified_kyc());
 
-    token.grant_gatekeeper(Sender(owner), ali);
+    token.grant_gatekeeper(owner, ali);
 
     let first_user_token = token.get_token_by_index(Key::Account(bob), U256::from(0));
     let second_user_token = token.get_token_by_index(Key::Account(bob), U256::from(1));
-    token.burn(Sender(ali), bob, first_user_token.unwrap());
+    token.burn(ali, bob, first_user_token.unwrap());
     assert_eq!(token.total_supply(), U256::from(1));
     assert_eq!(token.balance_of(Key::Account(bob)), U256::from(1));
 
@@ -134,17 +133,17 @@ fn test_burn_from_non_gatekeeper() {
     let (env, token, owner) = deploy();
     let ali = env.next_user();
     let bob = env.next_user();
-    token.mint(Sender(owner), bob, None, meta::unverified_kyc());
-    token.mint(Sender(owner), bob, None, meta::verified_kyc());
+    token.mint(owner, bob, None, meta::unverified_kyc());
+    token.mint(owner, bob, None, meta::verified_kyc());
 
-    token.grant_gatekeeper(Sender(owner), ali);
+    token.grant_gatekeeper(owner, ali);
 
     let first_user_token = token.get_token_by_index(Key::Account(bob), U256::from(0));
     let second_user_token = token.get_token_by_index(Key::Account(bob), U256::from(1));
-    token.burn(Sender(ali), bob, first_user_token.unwrap());
+    token.burn(ali, bob, first_user_token.unwrap());
 
-    token.revoke_gatekeeper(Sender(owner), ali);
-    token.burn(Sender(ali), bob, second_user_token.unwrap()); // panic here
+    token.revoke_gatekeeper(owner, ali);
+    token.burn(ali, bob, second_user_token.unwrap()); // panic here
 }
 
 #[test]
@@ -153,8 +152,8 @@ fn test_transfer_from_admin() {
     let ali = env.next_user();
     let bob = env.next_user();
 
-    token.mint(Sender(owner), ali, None, meta::unverified_kyc());
-    token.mint(Sender(owner), ali, None, meta::verified_kyc());
+    token.mint(owner, ali, None, meta::unverified_kyc());
+    token.mint(owner, ali, None, meta::verified_kyc());
     let first_ali_token = token.get_token_by_index(Key::Account(ali), U256::from(0));
     let second_ali_token = token.get_token_by_index(Key::Account(ali), U256::from(1));
 
@@ -168,8 +167,8 @@ fn test_transfer_from_admin() {
         token.owner_of(second_ali_token.unwrap()).unwrap(),
         Key::Account(ali)
     );
-    token.grant_admin(Sender(owner), ali);
-    token.transfer_from(Sender(ali), ali, bob, vec![first_ali_token.unwrap()]);
+    token.grant_admin(owner, ali);
+    token.transfer_from(ali, ali, bob, vec![first_ali_token.unwrap()]);
     let new_first_ali_token = token.get_token_by_index(Key::Account(ali), U256::from(0));
     let new_second_ali_token = token.get_token_by_index(Key::Account(ali), U256::from(1));
     let new_first_bob_token = token.get_token_by_index(Key::Account(bob), U256::from(0));
@@ -200,8 +199,8 @@ fn test_transfer_from_non_admin() {
     let ali = env.next_user();
     let bob = env.next_user();
 
-    token.mint(Sender(owner), ali, None, meta::unverified_kyc());
-    token.mint(Sender(owner), ali, None, meta::verified_kyc());
+    token.mint(owner, ali, None, meta::unverified_kyc());
+    token.mint(owner, ali, None, meta::verified_kyc());
     let first_ali_token = token.get_token_by_index(Key::Account(ali), U256::from(0));
     let second_ali_token = token.get_token_by_index(Key::Account(ali), U256::from(1));
 
@@ -215,7 +214,7 @@ fn test_transfer_from_non_admin() {
         token.owner_of(second_ali_token.unwrap()).unwrap(),
         Key::Account(ali)
     );
-    token.transfer_from(Sender(ali), ali, bob, vec![first_ali_token.unwrap()]);
+    token.transfer_from(ali, ali, bob, vec![first_ali_token.unwrap()]);
 }
 
 #[test]
@@ -225,12 +224,7 @@ fn test_token_meta() {
     let token_id = TokenId::from("custom_token_id");
     let token_meta = meta::unverified_kyc();
 
-    token.mint(
-        Sender(owner),
-        user,
-        Some(token_id.clone()),
-        token_meta.clone(),
-    );
+    token.mint(owner, user, Some(token_id.clone()), token_meta.clone());
 
     let user_token_meta = token.token_meta(token_id.clone());
     assert_eq!(user_token_meta.unwrap(), token_meta);
@@ -246,14 +240,9 @@ fn test_token_metadata_set_from_gatekeeper() {
     let bob = env.next_user();
     let token_id = TokenId::from("123456");
 
-    token.mint(
-        Sender(owner),
-        bob,
-        Some(token_id.clone()),
-        meta::unverified_kyc(),
-    );
-    token.grant_gatekeeper(Sender(owner), ali);
-    token.set_token_meta(Sender(ali), token_id.clone(), meta::verified_kyc());
+    token.mint(owner, bob, Some(token_id.clone()), meta::unverified_kyc());
+    token.grant_gatekeeper(owner, ali);
+    token.set_token_meta(ali, token_id.clone(), meta::verified_kyc());
     assert_eq!(token.token_meta(token_id).unwrap(), meta::verified_kyc());
 }
 
@@ -265,13 +254,8 @@ fn test_token_metadata_set_from_non_gatekeeper() {
     let bob = env.next_user();
     let token_id = TokenId::from("123456");
 
-    token.mint(
-        Sender(owner),
-        bob,
-        Some(token_id.clone()),
-        meta::unverified_kyc(),
-    );
-    token.set_token_meta(Sender(ali), token_id, meta::verified_kyc());
+    token.mint(owner, bob, Some(token_id.clone()), meta::unverified_kyc());
+    token.set_token_meta(ali, token_id, meta::verified_kyc());
 }
 
 #[test]
@@ -281,16 +265,11 @@ fn test_token_metadata_update_from_gatekeeper() {
     let bob = env.next_user();
     let token_id = TokenId::from("123456");
 
-    token.mint(
-        Sender(owner),
-        bob,
-        Some(token_id.clone()),
-        meta::unverified_kyc(),
-    );
-    token.grant_gatekeeper(Sender(owner), ali);
-    token.set_token_meta(Sender(ali), token_id.clone(), meta::verified_kyc());
+    token.mint(owner, bob, Some(token_id.clone()), meta::unverified_kyc());
+    token.grant_gatekeeper(owner, ali);
+    token.set_token_meta(ali, token_id.clone(), meta::verified_kyc());
     token.update_token_meta(
-        Sender(ali),
+        ali,
         token_id.clone(),
         String::from("expiry"),
         String::from("5555555"),
@@ -308,17 +287,12 @@ fn test_token_metadata_update_from_non_gatekeeper() {
     let bob = env.next_user();
     let token_id = TokenId::from("123456");
 
-    token.mint(
-        Sender(owner),
-        bob,
-        Some(token_id.clone()),
-        meta::unverified_kyc(),
-    );
-    token.grant_gatekeeper(Sender(owner), ali);
-    token.set_token_meta(Sender(ali), token_id.clone(), meta::verified_kyc());
-    token.revoke_gatekeeper(Sender(owner), ali);
+    token.mint(owner, bob, Some(token_id.clone()), meta::unverified_kyc());
+    token.grant_gatekeeper(owner, ali);
+    token.set_token_meta(ali, token_id.clone(), meta::verified_kyc());
+    token.revoke_gatekeeper(owner, ali);
     token.update_token_meta(
-        Sender(ali),
+        ali,
         token_id,
         String::from("expiry"),
         String::from("5555555"),
