@@ -4,8 +4,10 @@ use blake2::{
     digest::{Update, VariableOutput},
     VarBlake2b,
 };
-use casper_types::{bytesrepr::ToBytes, runtime_args, CLTyped, Key, RuntimeArgs, U256};
-use test_env::{Sender, TestContract, TestEnv};
+use casper_types::{
+    account::AccountHash, bytesrepr::ToBytes, runtime_args, CLTyped, Key, RuntimeArgs, U256,
+};
+use test_env::{TestContract, TestEnv};
 
 pub type TokenId = String;
 pub type Meta = BTreeMap<String, String>;
@@ -16,7 +18,7 @@ impl CIVICInstance {
     pub fn new<T: Into<Key>>(
         env: &TestEnv,
         contract_name: &str,
-        sender: Sender,
+        sender: AccountHash,
         name: &str,
         symbol: &str,
         meta: Meta,
@@ -36,7 +38,7 @@ impl CIVICInstance {
         ))
     }
 
-    pub fn constructor(&self, sender: Sender, name: &str, symbol: &str, meta: Meta) {
+    pub fn constructor(&self, sender: AccountHash, name: &str, symbol: &str, meta: Meta) {
         self.0.call_contract(
             sender,
             "constructor",
@@ -49,7 +51,7 @@ impl CIVICInstance {
 
     pub fn mint<T: Into<Key>>(
         &self,
-        sender: Sender,
+        sender: AccountHash,
         recipient: T,
         token_id: Option<TokenId>,
         token_meta: Meta,
@@ -65,7 +67,7 @@ impl CIVICInstance {
         )
     }
 
-    pub fn burn<T: Into<Key>>(&self, sender: Sender, owner: T, token_id: TokenId) {
+    pub fn burn<T: Into<Key>>(&self, sender: AccountHash, owner: T, token_id: TokenId) {
         self.0.call_contract(
             sender,
             "burn",
@@ -78,7 +80,7 @@ impl CIVICInstance {
 
     pub fn transfer_from<T: Into<Key>>(
         &self,
-        sender: Sender,
+        sender: AccountHash,
         owner: T,
         recipient: T,
         token_ids: Vec<TokenId>,
@@ -94,7 +96,7 @@ impl CIVICInstance {
         )
     }
 
-    pub fn set_token_meta(&self, sender: Sender, token_id: TokenId, token_meta: Meta) {
+    pub fn set_token_meta(&self, sender: AccountHash, token_id: TokenId, token_meta: Meta) {
         self.0.call_contract(
             sender,
             "set_token_meta",
@@ -107,7 +109,7 @@ impl CIVICInstance {
 
     pub fn update_token_meta(
         &self,
-        sender: Sender,
+        sender: AccountHash,
         token_id: TokenId,
         token_meta_key: String,
         token_meta_value: String,
@@ -123,7 +125,7 @@ impl CIVICInstance {
         )
     }
 
-    pub fn grant_gatekeeper<T: Into<Key>>(&self, sender: Sender, gatekeeper: T) {
+    pub fn grant_gatekeeper<T: Into<Key>>(&self, sender: AccountHash, gatekeeper: T) {
         self.0.call_contract(
             sender,
             "grant_gatekeeper",
@@ -133,7 +135,7 @@ impl CIVICInstance {
         )
     }
 
-    pub fn revoke_gatekeeper<T: Into<Key>>(&self, sender: Sender, gatekeeper: T) {
+    pub fn revoke_gatekeeper<T: Into<Key>>(&self, sender: AccountHash, gatekeeper: T) {
         self.0.call_contract(
             sender,
             "revoke_gatekeeper",
@@ -143,7 +145,7 @@ impl CIVICInstance {
         )
     }
 
-    pub fn grant_admin<T: Into<Key>>(&self, sender: Sender, admin: T) {
+    pub fn grant_admin<T: Into<Key>>(&self, sender: AccountHash, admin: T) {
         self.0.call_contract(
             sender,
             "grant_admin",
@@ -153,7 +155,7 @@ impl CIVICInstance {
         )
     }
 
-    pub fn revoke_admin<T: Into<Key>>(&self, sender: Sender, admin: T) {
+    pub fn revoke_admin<T: Into<Key>>(&self, sender: AccountHash, admin: T) {
         self.0.call_contract(
             sender,
             "revoke_admin",

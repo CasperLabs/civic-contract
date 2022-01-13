@@ -1,9 +1,9 @@
-use cep47::contract_utils::{ContractContext, ContractStorage, Dict};
-use contract::{
+use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
-use types::{ApiError, Key};
+use casper_types::{ApiError, Key};
+use cep47::contract_utils::{ContractContext, ContractStorage, Dict};
 
 const GATEKEEPERS_DICT: &str = "gatekeepers";
 pub trait GateKeeperControl<Storage: ContractStorage>: ContractContext<Storage> {
