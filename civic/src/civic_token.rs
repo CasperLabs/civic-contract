@@ -3,12 +3,7 @@
 #[macro_use]
 extern crate alloc;
 
-use alloc::{
-    boxed::Box,
-    collections::BTreeSet,
-    string::{String, ToString},
-    vec::Vec,
-};
+use alloc::{boxed::Box, collections::BTreeSet, string::String, vec::Vec};
 use cep47::{
     contract_utils::{AdminControl, ContractContext, OnChainContractStorage},
     Meta, TokenId, CEP47,
@@ -19,9 +14,8 @@ use casper_contract::{
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{
-    contracts::NamedKeys, runtime_args, ApiError, CLType, CLTyped, CLValue, ContractPackageHash,
-    EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Group, Key, Parameter, RuntimeArgs,
-    URef, U256,
+    runtime_args, ApiError, CLType, CLTyped, CLValue, ContractPackageHash, EntryPoint,
+    EntryPointAccess, EntryPointType, EntryPoints, Group, Key, Parameter, RuntimeArgs, URef, U256,
 };
 
 mod gatekeeper_control;
