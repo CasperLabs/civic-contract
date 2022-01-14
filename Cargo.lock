@@ -220,7 +220,7 @@ checksum = "d26a6ce4b6a484fa3edb70f7efa6fc430fd2b87285fe8b84304fd0936faa0dc0"
 [[package]]
 name = "cep47"
 version = "0.2.0"
-source = "git+https://github.com/casper-ecosystem/casper-nft-cep47?branch=feature/reorg_lib#ea96ec451417bb8307eae22613b37ec83fe62eb2"
+source = "git+https://github.com/casper-ecosystem/casper-nft-cep47?branch=feature/reorg_lib#e1caed848aecb88eb35af37f5ec10be6d3ebb3a9"
 dependencies = [
  "casper-contract",
  "casper-types",
@@ -265,7 +265,7 @@ dependencies = [
 [[package]]
 name = "contract-utils"
 version = "0.1.0"
-source = "git+https://github.com/casper-ecosystem/casper-nft-cep47?branch=feature/reorg_lib#ea96ec451417bb8307eae22613b37ec83fe62eb2"
+source = "git+https://github.com/casper-ecosystem/casper-nft-cep47?branch=feature/reorg_lib#e1caed848aecb88eb35af37f5ec10be6d3ebb3a9"
 dependencies = [
  "casper-contract",
  "casper-types",
