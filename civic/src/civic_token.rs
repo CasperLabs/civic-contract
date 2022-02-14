@@ -53,7 +53,7 @@ impl GatewayToken {
             return false;
         }
         if let Some(status) = token_metadata.unwrap().get(STATUS_KEY) {
-            if status.eq(ACTIVE_STATUS) {
+            if status.to_lowercase().eq(ACTIVE_STATUS) {
                 return true;
             }
         }
