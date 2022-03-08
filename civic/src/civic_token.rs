@@ -243,12 +243,15 @@ pub extern "C" fn call() {
     let (contract_hash, _) = storage::new_contract(
         get_entry_points(),
         None,
-        Some(String::from("contract_package_hash")),
-        Some(format!("{}_package_access_token", contract_name)),
+        Some(String::from(&format!(
+            "{}_contract_package_hash",
+            contract_name
+        ))),
+        Some(String::from(&format!("{}_access_token", contract_name))),
     );
 
     let package_hash = ContractPackageHash::new(
-        runtime::get_key("contract_package_hash")
+        runtime::get_key(&format!("{}_contract_package_hash", contract_name))
             .unwrap_or_revert()
             .into_hash()
             .unwrap_or_revert(),
