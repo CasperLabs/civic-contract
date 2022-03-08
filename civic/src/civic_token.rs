@@ -244,7 +244,7 @@ pub extern "C" fn call() {
         get_entry_points(),
         None,
         Some(String::from("contract_package_hash")),
-        None,
+        Some(format!("{}_package_access_token", contract_name)),
     );
 
     let package_hash = ContractPackageHash::new(
@@ -274,6 +274,10 @@ pub extern "C" fn call() {
     runtime::put_key(
         &format!("{}_contract_hash_wrapped", contract_name),
         storage::new_uref(contract_hash).into(),
+    );
+    runtime::put_key(
+        &format!("{}_package_hash_wrapped", contract_name),
+        storage::new_uref(package_hash).into(),
     );
 }
 
